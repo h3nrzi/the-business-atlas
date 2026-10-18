@@ -184,6 +184,7 @@ def check_links(root: Path) -> list[str]:
 
 
 def validate(root: Path, local_taxonomy: Path | None = None) -> list[str]:
+    root = root.resolve()
     errors = []
     def need(condition, message):
         if not condition:
@@ -317,9 +318,19 @@ def validate(root: Path, local_taxonomy: Path | None = None) -> list[str]:
         for sid in declared:
             need(sid in source_ids, f'{ident}: unknown source {sid}')
         if path and path.is_file():
-            body = path.read_text(encoding='utf-8')
-            for sid in re.findall(r'\[@(src-[a-z0-9-]+)\]', strip_code(body)):
-                need(sid in source_ids and sid in declared, f'{ident}: undeclared/unknown citation {sid}')
+            owned_documents = {path}
+            if kind == 'business':
+                owned_documents.update(path.parent.rglob('*.md'))
+            approval = record.get('publication')
+            if isinstance(approval, dict):
+                review_document = safe_path(root, approval.get('review_path'))
+                if review_document and review_document.is_file():
+                    owned_documents.add(review_document)
+            for document in sorted(owned_documents):
+                body = document.read_text(encoding='utf-8')
+                for sid in re.findall(r'\[@(src-[a-z0-9-]+)\]', strip_code(body)):
+                    need(sid in source_ids and sid in declared,
+                         f'{ident}: undeclared/unknown citation {sid} in {document.relative_to(root)}')
         coverage = record.get('coverage')
         need(isinstance(coverage, dict), f'{ident}: coverage must be an object')
         if isinstance(coverage, dict):
@@ -490,7 +501,8 @@ def generated(root: Path) -> dict[str, str]:
         index += '| شناسه | سطح | والد | English label | فارسی و وضعیت |\n| --- | --- | --- | --- | --- |\n'
         for r in taxonomy:
             index += f"| {r['id']} | {r['level']} | {r['parent_id'] or '—'} | {cell(r['label_en'])} | {cell(r['label_fa'] or '—')} ({r['translation_status']}) |\n"
-    return {'CONTENTS.md': contents, 'PROGRESS.md': progress, 'taxonomy/isic-rev5/INDEX.md': index}
+    views = {'CONTENTS.md': contents, 'PROGRESS.md': progress, 'taxonomy/isic-rev5/INDEX.md': index}
+    return {name: body.rstrip() + '\n' for name, body in views.items()}
 
 
 def main(argv=None) -> int:
