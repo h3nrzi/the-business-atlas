@@ -15,6 +15,7 @@ import io
 import json
 from pathlib import Path
 import re
+import subprocess
 import sys
 from urllib.parse import unquote, urlsplit
 
@@ -60,6 +61,7 @@ RECORD_FIELDS = {
     'evidence_status', 'activities', 'sources', 'gaps', 'unresolved_decisions',
     'last_reviewed', 'next_review_due', 'relations', 'coverage', 'publication',
 }
+RESTRICTED_SOURCE = '.scratch/taxonomy/isic-rev5-source.csv'
 
 
 def digest(data: bytes) -> str:
@@ -90,6 +92,63 @@ def read_json(root: Path, name: str, array: str | None = None):
                               or not all(isinstance(x, dict) for x in value[array])):
         raise ValueError(f'{name}: {array} must be an array of objects')
     return value if array is None else value[array]
+
+
+def restricted_source_errors(root: Path) -> list[str]:
+    """Inspect the current index, including force-added files; archives have no index."""
+    if not (root / '.git').exists():
+        return []
+    try:
+        result = subprocess.run(
+            ['git', '-C', str(root), 'ls-files', '--cached', '--', RESTRICTED_SOURCE],
+            check=True, capture_output=True, text=True)
+    except (OSError, subprocess.CalledProcessError) as exc:
+        return [f'cannot inspect restricted-source index: {exc}']
+    if result.stdout.strip():
+        return [f'restricted source is tracked: {RESTRICTED_SOURCE}; use git rm --cached to preserve local data']
+    return []
+
+
+def revision_digest(root: Path, record: dict) -> str:
+    """Versioned approval payload: material state only, with no approval self-reference."""
+    root = root.resolve()
+    chapter = safe_path(root, record.get('path'))
+    if chapter is None or not chapter.is_file():
+        raise ValueError('revision hash requires an existing safe chapter path')
+    if (not strings(record.get('geography'), True) or not strings(record.get('sources'))
+            or not isinstance(record.get('activities'), list)
+            or not all(isinstance(a, dict) and text_value(a.get('id')) for a in record['activities'])
+            or not isinstance(record.get('relations'), dict)
+            or not all(strings(targets) for targets in record['relations'].values())
+            or not isinstance(record.get('coverage'), dict)):
+        raise ValueError('revision hash requires valid material metadata arrays/objects')
+    material = {key: record.get(key) for key in ('id', 'kind', 'redirect_to')}
+    material['geography'] = sorted(record['geography'])
+    material['activities'] = sorted(record['activities'], key=lambda a: a['id'])
+    material['relations'] = {key: sorted(targets) for key, targets in record['relations'].items() if targets}
+    material['sources'] = sorted(record['sources'])
+    # Applicability exclusions define scope; completion progress is checked separately.
+    material['coverage_exclusions'] = {key: value.get('reason') for key, value in record['coverage'].items()
+                                      if isinstance(value, dict) and value.get('state') == 'not-applicable'}
+    registry = {s['id']: s for s in read_json(root, 'sources/registry.json', 'sources')}
+    # Access dates are audit administration; source identity, interpretation and rights matter.
+    source_fields = ('id', 'title', 'publisher', 'url', 'published', 'geography', 'locator', 'limitations', 'rights')
+    references = []
+    for sid in material['sources']:
+        source = {key: registry[sid].get(key) for key in source_fields}
+        source['geography'] = sorted(source['geography'])
+        references.append(source)
+    companions = {}
+    if record['kind'] == 'business':
+        for name in ('evidence.md', 'decisions.md'):
+            path = safe_path(root, (chapter.parent / name).relative_to(root).as_posix())
+            if path is None:
+                raise ValueError(f'unsafe material companion: {name}')
+            companions[name] = digest(path.read_bytes()) if path.is_file() else None
+    payload = dict(contract='atlas-publication-v1', content_sha256=digest(chapter.read_bytes()),
+                   metadata=material, sources=references, companions=companions)
+    return digest(json.dumps(payload, ensure_ascii=False, sort_keys=True,
+                             separators=(',', ':')).encode('utf-8'))
 
 
 def audit_isic(path: Path, manifest: dict) -> list[dict]:
@@ -185,7 +244,7 @@ def check_links(root: Path) -> list[str]:
 
 def validate(root: Path, local_taxonomy: Path | None = None) -> list[str]:
     root = root.resolve()
-    errors = []
+    errors = restricted_source_errors(root)
     def need(condition, message):
         if not condition:
             errors.append(message)
@@ -370,6 +429,11 @@ def validate(root: Path, local_taxonomy: Path | None = None) -> list[str]:
                 need(review is not None and review.is_file(), f'{ident}: approval review document missing')
                 if path and path.is_file():
                     need(publication.get('content_sha256') == digest(path.read_bytes()), f'{ident}: approval hash differs; return to review')
+                    try:
+                        need(publication.get('revision_sha256') == revision_digest(root, record),
+                             f'{ident}: approval revision differs; return to review and obtain renewed human approval')
+                    except (OSError, ValueError, KeyError, TypeError) as exc:
+                        errors.append(f'{ident}: cannot compute approval revision: {exc}')
                     need(bool(re.search(r'\[@src-[a-z0-9-]+\]', strip_code(path.read_text(encoding='utf-8')))), f'{ident}: published chapter needs inline source references')
     for ident, record in by_id.items():
         relations = record.get('relations')
@@ -501,7 +565,8 @@ def generated(root: Path) -> dict[str, str]:
         index += '| شناسه | سطح | والد | English label | فارسی و وضعیت |\n| --- | --- | --- | --- | --- |\n'
         for r in taxonomy:
             index += f"| {r['id']} | {r['level']} | {r['parent_id'] or '—'} | {cell(r['label_en'])} | {cell(r['label_fa'] or '—')} ({r['translation_status']}) |\n"
-    return {'CONTENTS.md': contents, 'PROGRESS.md': progress, 'taxonomy/isic-rev5/INDEX.md': index}
+    views = {'CONTENTS.md': contents, 'PROGRESS.md': progress, 'taxonomy/isic-rev5/INDEX.md': index}
+    return {name: body.rstrip() + '\n' for name, body in views.items()}
 
 
 def main(argv=None) -> int:
@@ -514,10 +579,17 @@ def main(argv=None) -> int:
     audit.add_argument('path', type=Path)
     hashing = commands.add_parser('hash', help='SHA256 of chapter bytes for human approval record')
     hashing.add_argument('path', type=Path)
+    revision = commands.add_parser('revision-hash', help='material publication revision for human review; grants no approval')
+    revision.add_argument('record_id')
     args = parser.parse_args(argv)
     try:
         if args.command == 'hash':
             print(digest(args.path.read_bytes()))
+        elif args.command == 'revision-hash':
+            matches = [r for r in read_json(ROOT, 'catalog.json', 'records') if r.get('id') == args.record_id]
+            if len(matches) != 1:
+                raise ValueError('revision-hash requires one unique catalog record ID')
+            print(revision_digest(ROOT, matches[0]))
         elif args.command == 'audit-isic':
             manifest = read_json(ROOT, 'taxonomy/isic-rev5/manifest.json')
             records = audit_isic(args.path, manifest)

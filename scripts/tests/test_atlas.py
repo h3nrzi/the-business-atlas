@@ -1,11 +1,15 @@
 """Disposable contract fixtures. Nothing here is an encyclopedia chapter."""
 import copy
+from contextlib import redirect_stdout
 import hashlib
 import importlib.util
+import io
 import json
 from pathlib import Path
+import subprocess
 import tempfile
 import unittest
+from unittest.mock import patch
 
 SPEC = importlib.util.spec_from_file_location('atlas', Path(__file__).parents[1] / 'atlas.py')
 atlas = importlib.util.module_from_spec(SPEC)
@@ -71,6 +75,7 @@ class AtlasContracts(unittest.TestCase):
                            publication=dict(approved_by='TEST ONLY', approved_on='2000-01-01',
                                             content_sha256=hashlib.sha256(chapter.read_bytes()).hexdigest(),
                                             review_path='businesses/ba-000001/review.md'))
+        self.record['publication']['revision_sha256'] = atlas.revision_digest(self.root, self.record)
         self.catalog(self.record)
         return chapter
 
@@ -142,6 +147,8 @@ class AtlasContracts(unittest.TestCase):
         (chapter.parent / 'evidence.md').write_text('# TEST EVIDENCE\n[@src-evidence-only]\n')
         self.assertIn('undeclared/unknown citation src-evidence-only', self.errors())
         self.record['sources'].append('src-evidence-only')
+        # Synthetic reapproval after changing the material evidence, not human authorization.
+        self.record['publication']['revision_sha256'] = atlas.revision_digest(self.root, self.record)
         self.catalog(self.record)
         self.assertEqual(self.errors(), '')
 
@@ -221,9 +228,151 @@ class AtlasContracts(unittest.TestCase):
     def test_generation_is_deterministic_and_uses_only_catalog(self):
         first = atlas.generated(self.root)
         self.assertEqual(first, atlas.generated(self.root))
+        for body in first.values():
+            self.assertTrue(body.endswith('\n'))
+            self.assertFalse(body.endswith('\n\n'))
         self.catalog(self.record)
         self.assertIn('ba-000001', atlas.generated(self.root)['CONTENTS.md'])
         self.assertIn('**1**', atlas.generated(self.root)['PROGRESS.md'])
+
+    def test_legacy_text_only_approval_requires_new_review(self):
+        self.publish_fixture()
+        del self.record['publication']['revision_sha256']
+        self.catalog(self.record)
+        self.assertIn('approval revision differs', self.errors())
+
+    def test_scope_exclusion_changes_invalidate_approval(self):
+        self.publish_fixture()
+        self.record['coverage']['02'] = dict(state='not-applicable', reason='Synthetic scope exclusion')
+        self.catalog(self.record)
+        self.assertIn('approval revision differs', self.errors())
+        self.record['publication']['revision_sha256'] = atlas.revision_digest(self.root, self.record)
+        self.catalog(self.record)
+        self.assertEqual(self.errors(), '')
+        self.record['coverage']['02']['reason'] = 'A different scope exclusion'
+        self.catalog(self.record)
+        self.assertIn('approval revision differs', self.errors())
+
+    def test_revision_hash_cli_uses_catalog_id_and_does_not_grant_approval(self):
+        self.publish_fixture()
+        self.record.update(status='review', publication=None)
+        self.catalog(self.record)
+        before = (self.root / 'catalog.json').read_bytes()
+        output = io.StringIO()
+        with patch.object(atlas, 'ROOT', self.root), redirect_stdout(output):
+            self.assertEqual(atlas.main(['revision-hash', self.record['id']]), 0)
+        self.assertEqual(output.getvalue().strip(), atlas.revision_digest(self.root, self.record))
+        self.assertEqual((self.root / 'catalog.json').read_bytes(), before)
+
+    def test_material_metadata_changes_invalidate_approval(self):
+        self.publish_fixture()
+        approved = copy.deepcopy(self.record)
+        changes = {
+            'geography': ['another fixture region'],
+            'activities': [dict(id='isic-rev5:0111', role='primary', rationale='Different scope')],
+            'sources': [],
+            'relations': {'processes': ['pr-000001']},
+            'redirect_to': 'ba-000002',
+        }
+        process = dict(copy.deepcopy(self.record), id='pr-000001', kind='process', path=None,
+                       status='planned', publication=None, coverage={})
+        other = dict(copy.deepcopy(self.record), id='ba-000002', path=None,
+                     status='planned', publication=None, coverage={})
+        for key, value in changes.items():
+            with self.subTest(field=key):
+                self.record = dict(copy.deepcopy(approved), **{key: value})
+                self.catalog(self.record, process, other)
+                self.assertIn('approval revision differs', self.errors())
+
+    def test_material_source_definition_changes_invalidate_approval(self):
+        self.publish_fixture()
+        for key in ('url', 'locator', 'limitations', 'rights', 'published'):
+            with self.subTest(field=key):
+                value = '2001' if key == 'published' else self.source[key] + '/changed'
+                self.save('sources/registry.json', {'schema_version': 1, 'sources': [dict(self.source, **{key: value})]})
+                self.assertIn('approval revision differs', self.errors())
+
+    def test_evidence_and_scope_decisions_add_edit_remove_invalidate_approval(self):
+        chapter = self.publish_fixture()
+        for name in ('evidence.md', 'decisions.md'):
+            with self.subTest(companion=name):
+                path = chapter.parent / name
+                path.write_text('# SYNTHETIC MATERIAL\n')
+                self.assertIn('approval revision differs', self.errors())
+                self.record['publication']['revision_sha256'] = atlas.revision_digest(self.root, self.record)
+                self.catalog(self.record)
+                self.assertEqual(self.errors(), '')
+                path.write_text('# CHANGED SYNTHETIC MATERIAL\n')
+                self.assertIn('approval revision differs', self.errors())
+                path.unlink()
+                self.assertIn('approval revision differs', self.errors())
+                self.record['publication']['revision_sha256'] = atlas.revision_digest(self.root, self.record)
+                self.catalog(self.record)
+
+    def test_review_preserves_old_approval_until_synthetic_reapproval(self):
+        self.publish_fixture()
+        self.record['geography'] = ['changed scope']
+        for state in ('review', 'needs-update'):
+            self.record['status'] = state
+            self.catalog(self.record)
+            self.assertEqual(self.errors(), '')
+        self.record['status'] = 'published'
+        self.catalog(self.record)
+        self.assertIn('approval revision differs', self.errors())
+        self.record['publication']['revision_sha256'] = atlas.revision_digest(self.root, self.record)
+        self.catalog(self.record)
+        self.assertEqual(self.errors(), '')
+
+    def test_administrative_and_display_changes_do_not_invalidate_approval(self):
+        chapter = self.publish_fixture()
+        self.record.update(title_fa='عنوان نمایشی', title_en='Display title', aliases=['Display alias'],
+                           last_reviewed='2001-01-01', next_review_due='2098-01-01')
+        self.save('sources/registry.json', {'schema_version': 1,
+                  'sources': [dict(self.source, accessed='2001-01-01'), dict(self.source, id='src-unrelated')]})
+        (chapter.parent / 'review.md').write_text('# TEST REVIEW updated sign-off notes\n')
+        (chapter.parent / 'handoff.md').write_text('# TEST administrative handoff\n')
+        self.catalog(self.record)
+        self.assertEqual(self.errors(), '')
+
+    def test_revision_is_independent_of_json_and_set_order(self):
+        self.publish_fixture()
+        self.record['geography'] = ['fixture-a', 'fixture-b']
+        self.record['relations'] = {'related': ['ba-000002', 'ba-000003']}
+        first = atlas.revision_digest(self.root, self.record)
+        self.record = dict(reversed(list(self.record.items())))
+        self.record['geography'].reverse()
+        self.record['relations']['related'].reverse()
+        self.record['relations']['processes'] = []
+        self.save('sources/registry.json', {'schema_version': 1, 'sources': [dict(reversed(list(self.source.items())))]})
+        self.assertEqual(first, atlas.revision_digest(self.root, self.record))
+
+
+class RestrictedSourceTracking(unittest.TestCase):
+    def test_current_repository_index_excludes_restricted_source(self):
+        self.assertEqual(atlas.restricted_source_errors(atlas.ROOT), [])
+
+    def test_narrow_ignore_and_force_added_snapshot_detection_preserve_local_copy(self):
+        with tempfile.TemporaryDirectory(prefix='atlas-index-test-') as directory:
+            root = Path(directory)
+            def git(*args):
+                return subprocess.run(['git', '-C', str(root), *args], check=True,
+                                      capture_output=True, text=True).stdout
+            git('init', '--quiet')
+            (root / '.gitignore').write_bytes((atlas.ROOT / '.gitignore').read_bytes())
+            raw = root / atlas.RESTRICTED_SOURCE
+            raw.parent.mkdir(parents=True)
+            raw.write_bytes(b'SYNTHETIC TEST DATA ONLY\n')
+            tracker = root / '.scratch' / 'test' / 'spec.md'
+            tracker.parent.mkdir()
+            tracker.write_text('# TEST tracker\n')
+            self.assertEqual(git('check-ignore', atlas.RESTRICTED_SOURCE).strip(), atlas.RESTRICTED_SOURCE)
+            self.assertIn('.scratch/test/spec.md', git('ls-files', '--others', '--exclude-standard'))
+            self.assertEqual(atlas.restricted_source_errors(root), [])
+            git('add', '-f', '--', atlas.RESTRICTED_SOURCE)
+            self.assertIn('restricted source is tracked', '\n'.join(atlas.validate(root)))
+            git('rm', '--cached', '--', atlas.RESTRICTED_SOURCE)
+            self.assertEqual(atlas.restricted_source_errors(root), [])
+            self.assertEqual(raw.read_bytes(), b'SYNTHETIC TEST DATA ONLY\n')
 
 
 if __name__ == '__main__':
