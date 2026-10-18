@@ -4,15 +4,15 @@
 
 ## منبع، نسخه و محدودیت زمانی
 
-متولی، United Nations Statistics Division (UNSD) است. [رکورد رسمی 2095](https://unstats.un.org/unsd/classifications/Family/Detail/2095) وضعیت را Operational، سال پذیرش را 2024 و سال انتشار را نامشخص ثبت می‌کند؛ تعداد سطوح آن 22 Section، 87 Division، 258 Group و 463 Class است. این اعداد تعداد دسته‌های فعالیت‌اند، نه تعداد کسب‌وکارهای جهان. همان رکورد، دسترسی کامل را فقط به انگلیسی اعلام می‌کند؛ ترجمهٔ فارسی در این بررسی تأیید نشده است.
+متولی، United Nations Statistics Division (UNSD) است. [رکورد رسمی 2095](https://unstats.un.org/unsd/classifications/Family/Detail/2095) وضعیت را Operational، سال پذیرش را 2024 و سال انتشار را نامشخص ثبت می‌کند؛ تعداد سطوح آن 22 Section، 87 Division، 258 Group و 463 Class است. این اعداد تعداد دسته‌های فعالیت‌اند، نه تعداد کسب‌وکارهای جهان. همان رکورد، دسترسی کامل را فقط به انگلیسی اعلام می‌کند؛ ترجمهٔ فارسی در این بررسی تأیید نشده است. [@src-un-isic5-detail]
 
-[صفحهٔ رسمی ISIC](https://unstats.un.org/unsd/classifications/Econ/isic) تأیید ساختار در 2023 و ادامهٔ آماده‌سازی انتشار را گزارش می‌کند. [راهنمای White-cover، 2026](https://unstats.un.org/unsd/classifications/Econ/Download/ISIC_Rev5_Publication-white_cover_version.pdf)، روی جلد و پیشگفتار، شمارهٔ انتشار را هنوز تخصیص‌نیافته و تأیید ساختار را مارس 2023 و تأیید مقدمه و یادداشت‌های توضیحی را مارس 2024 بیان می‌کند. بنابراین «Rev.5» را با «انتشار نهایی کتاب در 2024» یکسان نگیریم. CSV تاریخ انتشار مستقل یا شمارهٔ وصله ندارد؛ تاریخ دسترسی و checksum هویت snapshot را مشخص می‌کنند.
+[صفحهٔ رسمی ISIC](https://unstats.un.org/unsd/classifications/Econ/isic) تأیید ساختار در 2023 و ادامهٔ آماده‌سازی انتشار را گزارش می‌کند. [راهنمای White-cover، 2026](https://unstats.un.org/unsd/classifications/Econ/Download/ISIC_Rev5_Publication-white_cover_version.pdf)، روی جلد و پیشگفتار، شمارهٔ انتشار را هنوز تخصیص‌نیافته و تأیید ساختار را مارس 2023 و تأیید مقدمه و یادداشت‌های توضیحی را مارس 2024 بیان می‌کند. بنابراین «Rev.5» را با «انتشار نهایی کتاب در 2024» یکسان نگیریم. CSV تاریخ انتشار مستقل یا شمارهٔ وصله ندارد؛ تاریخ دسترسی و checksum هویت snapshot را مشخص می‌کنند. [@src-un-isic5-page] [@src-un-isic5-manual]
 
-[اصلاحیهٔ 17 August 2026](https://unstats.un.org/unsd/classifications/Econ/Download/Errata_for_the_Explanatory_Notes_of_the_ISICRev5_-_2026.pdf)، صفحهٔ 1، اصلاح مقدمه و توضیحات را اعلام می‌کند و می‌گوید ساختار، کدها و سلسله‌مراتب تغییر نکرده‌اند. هنگام تفسیر مرز فعالیت‌ها باید توضیحات به‌روز و اصلاحیه بررسی شوند؛ فایل ساختار به‌تنهایی برای تعیین شمول و استثنا کافی نیست.
+[اصلاحیهٔ 17 August 2026](https://unstats.un.org/unsd/classifications/Econ/Download/Errata_for_the_Explanatory_Notes_of_the_ISICRev5_-_2026.pdf)، صفحهٔ 1، اصلاح مقدمه و توضیحات را اعلام می‌کند و می‌گوید ساختار، کدها و سلسله‌مراتب تغییر نکرده‌اند. هنگام تفسیر مرز فعالیت‌ها باید توضیحات به‌روز و اصلاحیه بررسی شوند؛ فایل ساختار به‌تنهایی برای تعیین شمول و استثنا کافی نیست. [@src-un-isic5-errata]
 
 ## بررسی مستقیم فایل ساختار
 
-فایل از پیوند Structure only (CSV) در صفحهٔ رسمی دریافت شد: [ISIC_Rev_5_english_structure.csv](https://unstats.un.org/unsd/classifications/Econ/Download/In%20Text/ISIC_Rev_5_english_structure.csv).
+فایل از پیوند Structure only (CSV) در صفحهٔ رسمی دریافت شد: [ISIC_Rev_5_english_structure.csv](https://unstats.un.org/unsd/classifications/Econ/Download/In%20Text/ISIC_Rev_5_english_structure.csv). [@src-un-isic5-csv]
 
 - اندازهٔ بایت: `45481`.
 - SHA-256: `fc408f57bd3a4f33c35a4f384ec0010283dd72774892c8d48ae1330a8caeb57f`.
@@ -25,10 +25,10 @@
 
 ## حقوق استفاده: اجازهٔ بازنشر احراز نشده
 
-پاورقی صفحهٔ رسمی به [شرایط استفادهٔ سازمان ملل](https://www.un.org/en/about-us/terms-of-use) پیوند دارد. بند (a) بارگیری و کپی برای استفادهٔ شخصی و غیرتجاری را با محدودیت اجازه می‌دهد و عبارت دقیق آن چنین است:
+پاورقی صفحهٔ رسمی به [شرایط استفادهٔ سازمان ملل](https://www.un.org/en/about-us/terms-of-use) پیوند دارد. [@src-un-terms] بند (a) بارگیری و کپی برای استفادهٔ شخصی و غیرتجاری را با محدودیت اجازه می‌دهد و عبارت دقیق آن چنین است:
 
 > without any right to resell or redistribute them or to compile or create derivative works therefrom
 
-[صفحهٔ Copyright سازمان ملل](https://www.un.org/en/about-us/copyright) استفاده، بازتولید و انتقال خارج از موارد مجاز شرایط را منوط به اجازهٔ کتبی می‌کند و به [Rights and Permissions](https://shop.un.org/rights-permissions) ارجاع می‌دهد. در CSV، صفحهٔ ISIC و صفحات ابتدایی راهنمای بررسی‌شده، مجوز اختصاصی باز یا استثنای روشن برای بازنشر کامل ساختار یافت نشد. این نتیجه گزارش شواهد موجود است، نه ادعای حقوقی دربارهٔ قابلیت حمایت از هر کد یا عنوان منفرد.
+[صفحهٔ Copyright سازمان ملل](https://www.un.org/en/about-us/copyright) استفاده، بازتولید و انتقال خارج از موارد مجاز شرایط را منوط به اجازهٔ کتبی می‌کند و به [Rights and Permissions](https://shop.un.org/rights-permissions) ارجاع می‌دهد. [@src-un-copyright] در CSV، صفحهٔ ISIC و صفحات ابتدایی راهنمای بررسی‌شده، مجوز اختصاصی باز یا استثنای روشن برای بازنشر کامل ساختار یافت نشد. این نتیجه گزارش شواهد موجود است، نه ادعای حقوقی دربارهٔ قابلیت حمایت از هر کد یا عنوان منفرد.
 
 **توصیهٔ اجرایی:** دسترس‌پذیری عمومی را مجوز بازنشر فرض نکنیم. فایل خام، کل برچسب‌ها، ترجمهٔ کامل یا مشتق توزیع‌پذیر را تا ثبت اجازهٔ کتبی یا مجوز اختصاصی معتبر وارد Git نکنیم. فرادادهٔ منبع، checksum، نتیجهٔ بررسی و پیوندهای رسمی را نگه داریم و وضعیت واردسازی عمومی را صریحاً ناقص اعلام کنیم. بررسی بعدی باید دامنهٔ اجازه برای GitHub، ترجمهٔ فارسی، خروجی کتاب/وب و استفادهٔ تجاری احتمالی را روشن کند. هیچ درخواستی برای اجازه از طرف پروژه ارسال نشده است.

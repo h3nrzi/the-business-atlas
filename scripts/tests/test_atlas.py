@@ -135,6 +135,24 @@ class AtlasContracts(unittest.TestCase):
         chapter.write_text(chapter.read_text() + '\nChanged test text\n')
         self.assertIn('approval hash differs', self.errors())
 
+    def test_companion_sources_must_be_declared_by_owning_record(self):
+        chapter = self.publish_fixture()
+        extra = dict(self.source, id='src-evidence-only')
+        self.save('sources/registry.json', {'schema_version': 1, 'sources': [self.source, extra]})
+        (chapter.parent / 'evidence.md').write_text('# TEST EVIDENCE\n[@src-evidence-only]\n')
+        self.assertIn('undeclared/unknown citation src-evidence-only', self.errors())
+        self.record['sources'].append('src-evidence-only')
+        self.catalog(self.record)
+        self.assertEqual(self.errors(), '')
+
+    def test_review_document_sources_must_be_declared(self):
+        self.publish_fixture()
+        extra = dict(self.source, id='src-review-only')
+        self.save('sources/registry.json', {'schema_version': 1, 'sources': [self.source, extra]})
+        path = self.root / self.record['publication']['review_path']
+        path.write_text('# TEST REVIEW\n[@src-review-only]\n')
+        self.assertIn('undeclared/unknown citation src-review-only', self.errors())
+
     def test_publication_requires_coverage_sources_dates_and_review_record(self):
         self.publish_fixture()
         self.record.update(coverage={}, sources=[], publication=None, last_reviewed=None)
