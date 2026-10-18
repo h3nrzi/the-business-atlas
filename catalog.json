@@ -1,4 +1,35 @@
 {
   "schema_version": 1,
-  "records": []
+  "records": [
+    {
+      "id": "ba-000001",
+      "kind": "business",
+      "title_fa": "نانوایی مستقل",
+      "title_en": "Independent Bakery",
+      "path": null,
+      "geography": [
+        "worldwide"
+      ],
+      "status": "planned",
+      "evidence_status": "partial",
+      "activities": [],
+      "sources": [
+        "src-un-isic5-manual",
+        "src-un-isic5-errata"
+      ],
+      "gaps": [
+        "پس از تصویب مرز گونه، کدام فعالیت‌های اصلی/فرعی و با چه دلیل به آن تخصیص می‌یابند؟",
+        "برای دامنهٔ پذیرفته‌شده، کدام شواهد و مقایسه‌های جغرافیایی پاسخ‌گویی هر ۲۶ بُعد را ممکن می‌کند؟"
+      ],
+      "unresolved_decisions": [
+        "تعریف عملیاتی مستقل و معیار شمول یا مقایسهٔ حالت‌های مرزی چیست؟",
+        "راهبرد جغرافیایی و حد عمق برنامهٔ پژوهش با تأیید مالک چیست؟"
+      ],
+      "last_reviewed": null,
+      "next_review_due": null,
+      "relations": {},
+      "coverage": {},
+      "publication": null
+    }
+  ]
 }

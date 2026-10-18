@@ -8,7 +8,9 @@
 
 ## business
 
-هنوز رکوردی ثبت نشده است.
+| شناسه | عنوان | English | وضعیت |
+| --- | --- | --- | --- |
+| ba-000001 | نانوایی مستقل | Independent Bakery | planned |
 
 ## industry
 
