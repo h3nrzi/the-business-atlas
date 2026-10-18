@@ -4,7 +4,7 @@ Type: grilling
 Label: wayfinder:grilling
 Status: open
 Parent: ../map.md
-Blocked by: 03, 04
+Blocked by: 03, 04, 06, 07
 
 ## Question
 
@@ -23,3 +23,5 @@ Blocked by: 03, 04
 ## Dependencies
 
 پیش‌نیازها: [تعیین معیار شمول و معنای مستقل در گونهٔ نانوایی](03-archetype-boundary.md) و [انتخاب راهبرد شواهد و مقایسهٔ جغرافیایی فصل جهانی](04-geographic-evidence.md).
+
+همچنین [شواهد موارد مرزی تولید و کسب‌وکار ترکیبی نانوایی](06-boundary-case-evidence.md) و [تعیین جایگاه نانوایی مستقل و نهایی‌کردن موارد مرزی](07-archetype-position.md) باید تعیین تکلیف شوند؛ دامنهٔ کاری پذیرفته شده، اما تعلیق موارد مرزی و جایگاه نهایی گونه نباید هنگام تصویب برنامه ناپدید شوند.
