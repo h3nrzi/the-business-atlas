@@ -1,0 +1,19 @@
+{
+  "id": "ba-000001",
+  "kind": "business",
+  "title_fa": "{{عنوان کاری فارسی}}",
+  "title_en": "{{Working English title}}",
+  "path": null,
+  "geography": ["worldwide"],
+  "status": "planned",
+  "evidence_status": "unresearched",
+  "activities": [],
+  "sources": [],
+  "gaps": ["{{پرسش پژوهشی مشخص}}"],
+  "unresolved_decisions": [],
+  "last_reviewed": null,
+  "next_review_due": null,
+  "relations": {},
+  "coverage": {},
+  "publication": null
+}

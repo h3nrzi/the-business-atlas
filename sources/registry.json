@@ -1,0 +1,103 @@
+{
+  "schema_version": 1,
+  "sources": [
+    {
+      "id": "src-un-isic5-detail",
+      "title": "ISIC Revision 5 — classification detail 2095",
+      "publisher": "United Nations / UNSD",
+      "url": "https://unstats.un.org/unsd/classifications/Family/Detail/2095",
+      "published": null,
+      "accessed": "2026-10-18",
+      "geography": [
+        "worldwide"
+      ],
+      "locator": "Classification structure; revision information",
+      "limitations": "Counts and adoption metadata; not a business-archetype inventory. Publication date not stated on the source.",
+      "rights": "UN terms/copyright; full redistribution not cleared. See sources/isic-rev5-research.md."
+    },
+    {
+      "id": "src-un-isic5-page",
+      "title": "ISIC — official classification downloads",
+      "publisher": "United Nations / UNSD",
+      "url": "https://unstats.un.org/unsd/classifications/Econ/isic",
+      "published": null,
+      "accessed": "2026-10-18",
+      "geography": [
+        "worldwide"
+      ],
+      "locator": "ISIC Revision 5 section",
+      "limitations": "Page says publication is being prepared; dates differ by adoption milestone. Publication date not stated on the source.",
+      "rights": "UN terms/copyright; full redistribution not cleared. See sources/isic-rev5-research.md."
+    },
+    {
+      "id": "src-un-isic5-csv",
+      "title": "ISIC Rev.5 English structure (CSV)",
+      "publisher": "United Nations / UNSD",
+      "url": "https://unstats.un.org/unsd/classifications/Econ/Download/In%20Text/ISIC_Rev_5_english_structure.csv",
+      "published": null,
+      "accessed": "2026-10-18",
+      "geography": [
+        "worldwide"
+      ],
+      "locator": "Columns ISIC Rev 5 Code / ISIC Rev 5 Title",
+      "limitations": "No explanatory notes or explicit parent column; checksum and audited decoding in taxonomy manifest. Publication date not stated on the source.",
+      "rights": "UN terms/copyright; full redistribution not cleared. See sources/isic-rev5-research.md."
+    },
+    {
+      "id": "src-un-isic5-manual",
+      "title": "ISIC Rev.5 white-cover publication, 2026",
+      "publisher": "United Nations / UNSD",
+      "url": "https://unstats.un.org/unsd/classifications/Econ/Download/ISIC_Rev5_Publication-white_cover_version.pdf",
+      "published": "2026",
+      "accessed": "2026-10-18",
+      "geography": [
+        "worldwide"
+      ],
+      "locator": "Cover and preface",
+      "limitations": "Publication number pending; consult errata when interpreting activity boundaries.",
+      "rights": "UN terms/copyright; full redistribution not cleared. See sources/isic-rev5-research.md."
+    },
+    {
+      "id": "src-un-isic5-errata",
+      "title": "Errata for the Explanatory Notes of ISIC Rev.5",
+      "publisher": "United Nations / UNSD",
+      "url": "https://unstats.un.org/unsd/classifications/Econ/Download/Errata_for_the_Explanatory_Notes_of_the_ISICRev5_-_2026.pdf",
+      "published": "2026-08-17",
+      "accessed": "2026-10-18",
+      "geography": [
+        "worldwide"
+      ],
+      "locator": "Page 1 and affected explanatory notes",
+      "limitations": "Notes change; introductory statement says structure, codes and hierarchy unchanged.",
+      "rights": "UN terms/copyright; full redistribution not cleared. See sources/isic-rev5-research.md."
+    },
+    {
+      "id": "src-un-terms",
+      "title": "United Nations Terms of Use",
+      "publisher": "United Nations",
+      "url": "https://www.un.org/en/about-us/terms-of-use",
+      "published": null,
+      "accessed": "2026-10-18",
+      "geography": [
+        "worldwide"
+      ],
+      "locator": "Clause (a)",
+      "limitations": "No dataset-specific override identified; access does not establish redistribution permission. Publication date not stated on the source.",
+      "rights": "UN terms/copyright; full redistribution not cleared. See sources/isic-rev5-research.md."
+    },
+    {
+      "id": "src-un-copyright",
+      "title": "United Nations Copyright",
+      "publisher": "United Nations",
+      "url": "https://www.un.org/en/about-us/copyright",
+      "published": null,
+      "accessed": "2026-10-18",
+      "geography": [
+        "worldwide"
+      ],
+      "locator": "Use and reproduction / rights permissions",
+      "limitations": "Permission route is documented; no permission request sent by this project. Publication date not stated on the source.",
+      "rights": "UN terms/copyright; full redistribution not cleared. See sources/isic-rev5-research.md."
+    }
+  ]
+}

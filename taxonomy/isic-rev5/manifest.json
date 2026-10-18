@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "classification": "ISIC",
+  "revision": "5",
+  "namespace": "isic-rev5",
+  "custodian": "United Nations Statistics Division",
+  "source_id": "src-un-isic5-csv",
+  "source_url": "https://unstats.un.org/unsd/classifications/Econ/Download/In%20Text/ISIC_Rev_5_english_structure.csv",
+  "detail_url": "https://unstats.un.org/unsd/classifications/Family/Detail/2095",
+  "accessed": "2026-10-18",
+  "source_publication_date": null,
+  "version_note": "Rev.5; CSV has no independent publication date or patch version. 2026 white-cover manual; see source research note.",
+  "source_sha256": "fc408f57bd3a4f33c35a4f384ec0010283dd72774892c8d48ae1330a8caeb57f",
+  "source_bytes": 45481,
+  "source_encoding": "cp1252",
+  "expected_counts": {
+    "section": 22,
+    "division": 87,
+    "group": 258,
+    "class": 463
+  },
+  "repository_import_status": "blocked-rights",
+  "repository_missing": "All 830 category records and labels; Persian translations not commissioned.",
+  "audited_source_counts": {
+    "section": 22,
+    "division": 87,
+    "group": 258,
+    "class": 463
+  },
+  "audit_date": "2026-10-18",
+  "rights_status": "redistribution-not-cleared",
+  "rights_evidence": "sources/isic-rev5-research.md",
+  "translation_status": "not-started"
+}
